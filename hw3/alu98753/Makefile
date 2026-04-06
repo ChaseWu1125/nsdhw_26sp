@@ -4,7 +4,7 @@ all:
 	cp build/_matrix*.so .
 
 test: all
-	pytest test_matrix.py -v
+	python3 -mpytest test_matrix.py -v
 
 clean:
 	rm -rf build
