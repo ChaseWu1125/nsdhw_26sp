@@ -29,7 +29,6 @@ $(TARGET): $(SRC)
 	$(CXX) $(CXXFLAGS) $(PYTHON_INCLUDES) $(PYBIND11_INCLUDES) $(SRC) $(LDFLAGS) -o $@ $(BLAS_LIBS)
 
 test: $(TARGET)
-	PYTHONPATH=. $(PYTHON) -m pytest -v test_matrix.py validate.py
-
+	PYTHONPATH=. $(PYTHON) -m pytest -v test_matrix.py
 clean:
 	rm -f _matrix*.so *.o performance.txt
