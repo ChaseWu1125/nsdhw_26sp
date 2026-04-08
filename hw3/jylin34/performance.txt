@@ -1,0 +1,11 @@
+Matrix Multiplication Performance
+===================================
+Matrix size: 1024x1024
+Tile size: 32x32
+
+Naive implementation: 1.1033 seconds
+Tiled implementation: 0.2510 seconds
+MKL implementation:   0.0062 seconds
+
+Tiled version is 77.25% faster than naive.
+Success: Tiled version meets the 20% speedup requirement.
