@@ -1,30 +1,30 @@
-# 1. 自動偵測 Python 與 pybind11 的路徑
-PYBIND11_INC := $(shell python3 -m pybind11 --include)
+# 1. 自動偵測 Python 路徑
 PYTHON_INC   := $(shell python3-config --includes)
 PY_EXT_SUFFIX := $(shell python3-config --extension-suffix)
 
-# 2. 編譯參數 (加入 CI 所需的路徑與你的硬體優化)
+# 2. 手動加上可能的 pybind11 路徑 (相容本地與 CI)
+PYBIND11_INC := -I/usr/include -I/usr/local/include -I/usr/lib/python3/dist-packages/pybind11/include
+
+# 3. 編譯參數
 CXX = g++
 CXXFLAGS = -O3 -march=native -Wall -shared -std=c++14 -fPIC \
-           $(PYBIND11_INC) $(PYTHON_INC) \
+           $(PYTHON_INC) $(PYBIND11_INC) \
            -I/usr/include/mkl
 
-# 3. 連結參數
+# 4. 連結參數
 LDFLAGS = -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl
 
-# 4. 目標檔案
+# 5. 目標檔案
 TARGET = _matrix$(PY_EXT_SUFFIX)
 
-# 預設動作：編譯 TARGET
 all: $(TARGET)
 
 $(TARGET): _matrix.cpp
 	$(CXX) $(CXXFLAGS) _matrix.cpp -o $(TARGET) $(LDFLAGS)
 
-# 清理動作 (這就是剛才報錯找不到的地方)
 clean:
 	rm -rf $(TARGET) __pycache__ .pytest_cache performance.txt
 
-# 測試動作
+# 這裡加入 PYTHONPATH=. 確保 pytest 找得到 .so
 test: $(TARGET)
 	PYTHONPATH=. python3 -m pytest test_matrix.py

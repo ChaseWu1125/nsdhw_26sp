@@ -1,3 +1,11 @@
+import os
+import ctypes
+# 嘗試在 Python 層級預先載入 MKL，解決 CI 的符號遺失問題
+try:
+    ctypes.CDLL("libmkl_rt.so", mode=ctypes.RTLD_GLOBAL)
+except:
+    pass
+
 import _matrix
 import pytest
 import math
