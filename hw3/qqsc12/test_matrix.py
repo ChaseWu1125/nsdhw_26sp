@@ -1,10 +1,14 @@
 import os
 import ctypes
-# 嘗試在 Python 層級預先載入 MKL，解決 CI 的符號遺失問題
-try:
-    ctypes.CDLL("libmkl_rt.so", mode=ctypes.RTLD_GLOBAL)
-except:
-    pass
+import sys
+
+# 針對 Linux 環境 (如 GitHub Actions) 預先載入 MKL 核心庫
+if sys.platform.startswith('linux'):
+    try:
+        # 按照依賴順序載入，這通常能解決 undefined symbol 問題
+        ctypes.CDLL("libmkl_rt.so", mode=ctypes.RTLD_GLOBAL)
+    except Exception as e:
+        print(f"MKL preload warning: {e}")
 
 import _matrix
 import pytest
