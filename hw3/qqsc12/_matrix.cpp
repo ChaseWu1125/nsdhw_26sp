@@ -151,43 +151,30 @@ Matrix multiply_mkl(const Matrix& m1, const Matrix& m2) {
 }
 
 
+#include <dlfcn.h> // 加入這行
 
 PYBIND11_MODULE(_matrix, m) {
+    // 暴力破解：在模組載入時，直接用 dlopen 把 MKL 核心庫載入全域符號表
+    // 這樣不論是哪個進程呼叫，都能找到符號
+    dlopen("libmkl_rt.so", RTLD_GLOBAL | RTLD_LAZY);
 
     py::class_<Matrix>(m, "Matrix")
-
         .def(py::init<size_t, size_t>())
-
         .def_property_readonly("nrow", &Matrix::nrow)
-
         .def_property_readonly("ncol", &Matrix::ncol)
-
         .def(py::self == py::self)
-
         .def("__getitem__", [](const Matrix &mat, std::pair<size_t, size_t> idx) {
-
             if (idx.first >= mat.nrow() || idx.second >= mat.ncol())
-
                 throw py::index_error("Index out of range");
-
             return mat(idx.first, idx.second);
-
         })
-
         .def("__setitem__", [](Matrix &mat, std::pair<size_t, size_t> idx, double val) {
-
             if (idx.first >= mat.nrow() || idx.second >= mat.ncol())
-
                 throw py::index_error("Index out of range");
-
             mat(idx.first, idx.second) = val;
-
         });
 
     m.def("multiply_naive", &multiply_naive);
-
     m.def("multiply_tile", &multiply_tile);
-
     m.def("multiply_mkl", &multiply_mkl);
-
 }

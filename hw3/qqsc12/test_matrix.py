@@ -1,15 +1,3 @@
-import os
-import ctypes
-import sys
-
-# 針對 Linux 環境 (如 GitHub Actions) 預先載入 MKL 核心庫
-if sys.platform.startswith('linux'):
-    try:
-        # 按照依賴順序載入，這通常能解決 undefined symbol 問題
-        ctypes.CDLL("libmkl_rt.so", mode=ctypes.RTLD_GLOBAL)
-    except Exception as e:
-        print(f"MKL preload warning: {e}")
-
 import _matrix
 import pytest
 import math
@@ -18,10 +6,13 @@ def test_basic():
     size = 100
     mat1 = _matrix.Matrix(size, size)
     mat2 = _matrix.Matrix(size, size)
+    
+    # 填充資料
     for i in range(size):
         for j in range(size):
-            mat1[i, j] = i * size + j + 1
-            mat2[i, j] = i * size + j + 1
+            val = float(i * size + j + 1)
+            mat1[i, j] = val
+            mat2[i, j] = val
     
     assert mat1.nrow == size
     assert mat1.ncol == size
@@ -38,7 +29,13 @@ def test_tile():
     size = 200
     mat1 = _matrix.Matrix(size, size)
     mat2 = _matrix.Matrix(size, size)
-    # 填充資料...
+    
+    # 填充資料 (確保不是全 0)
+    for i in range(size):
+        for j in range(size):
+            mat1[i, j] = 1.0
+            mat2[i, j] = 2.0
+            
     ret_tile = _matrix.multiply_tile(mat1, mat2, 16)
     ret_mkl = _matrix.multiply_mkl(mat1, mat2)
     
